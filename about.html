@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>About — Lawyer Case Manager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light">
+  <header class="topbar light-top">
+    <div class="brand">⚖️ <span>Lawyer Case Manager</span></div>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="add.html">Add Case</a>
+      <a href="about.html" class="active">About</a>
+    </nav>
+    <div id="authLinks" style="margin-left:16px"></div>
+  </header>
+
+  <main class="container narrow">
+    <section class="form-card">
+      <h1>About</h1>
+      <p>This Lawyer Case Manager stores case records and attachments locally using IndexedDB. Key features:</p>
+      <ul>
+        <li>Add / edit / delete cases</li>
+        <li>Attach multiple files (images, PDFs) and preview/download them</li>
+        <li>Auto Next Hearing Date (Current + 30 days)</li>
+        <li>Auto-advance when current hearing date passes (moves current & calc next)</li>
+        <li>Powerful search, sort & filtering</li>
+        <li>Export / Import JSON for backup</li>
+      </ul>
+      <p>For cloud sync or notifications, I can add a server API next.</p>
+    </section>
+  </main>
+
+  <footer class="footer light-footer">© 2025 Lawyer Case Manager</footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

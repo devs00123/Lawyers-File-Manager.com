@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Add / Edit Case — Lawyer Case Manager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light">
+  <header class="topbar light-top">
+    <div class="brand">⚖️ <span>Lawyer Case Manager</span></div>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="add.html" class="active">Add Case</a>
+      <a href="about.html">About</a>
+    </nav>
+    <div id="authLinks" style="margin-left:16px"></div>
+  </header>
+
+  <main class="container narrow">
+    <section class="form-card form-animate">
+      <h1 id="formTitle">Add New Case</h1>
+      <form id="caseForm" autocomplete="off">
+        <input type="hidden" id="caseId" />
+
+        <label>Case Title
+          <input id="caseTitle" required placeholder="e.g. ABC vs XYZ" />
+        </label>
+
+        <label>Client Name
+          <input id="clientName" required />
+        </label>
+
+        <div class="row">
+          <label>Contact (email)
+            <input id="contact" type="email" placeholder="client@example.com" />
+          </label>
+          <label>Phone
+            <input id="phone" type="tel" placeholder="+91 98765 43210" />
+          </label>
+        </div>
+
+        <label>Court Number
+          <input id="courtNumber" />
+        </label>
+
+        <label>Judge Name
+          <input id="judgeName" />
+        </label>
+
+        <label>Purpose / Remarks
+          <textarea id="remarks" rows="3"></textarea>
+        </label>
+
+        <div class="row">
+          <label>Current Date of Hearing
+            <input id="currentDate" type="date" required />
+          </label>
+
+          <label>Next Date of Hearing
+            <input id="nextDate" type="date" required />
+          </label>
+        </div>
+
+        <label>Attach files (pdf, images)
+          <input id="filesInput" type="file" multiple accept=".pdf,image/*" />
+        </label>
+
+        <div id="existingFiles" class="existing-files"></div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Save Case</button>
+          <a href="index.html" class="btn ghost">Back</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer light-footer">Tip: Next Date auto-updates to Current + 30 days. You can edit it manually.</footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

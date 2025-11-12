@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Lawyer Case Manager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container auth-wrap">
+    <div class="auth-card">
+      <div class="auth-side auth-visual">
+        <h2>Welcome back 👩‍⚖️</h2>
+        <p>Sign in to manage your cases, attachments and hearing dates. Don't have an account? <a href="signup.html">Create one</a>.</p>
+        <div style="margin-top:18px;font-size:13px;color:var(--muted)">You may log in using the email or phone you registered with.</div>
+      </div>
+
+      <div class="auth-side">
+        <form id="loginForm" class="auth-form" autocomplete="off">
+          <label> Email or Phone
+            <input id="loginId" required placeholder="email@example.com or +91 98..." />
+          </label>
+          <label> Password
+            <input id="loginPass" type="password" required />
+          </label>
+
+          <div class="auth-actions">
+            <button class="btn primary" type="submit">Login</button>
+            <a href="signup.html" class="btn ghost">Signup</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // small client-only login using lcm_auth if available (from app.js) OR local logic
+    function normalizeId(s){ return (s||'').toLowerCase().trim(); }
+
+    document.getElementById('loginForm').addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const id = normalizeId(document.getElementById('loginId').value);
+      const pass = document.getElementById('loginPass').value;
+      try {
+        // attempt to use app's auth if loaded
+        if (window.lcm_auth && window.lcm_auth.loginUser) {
+          window.lcm_auth.loginUser(id, pass);
+        } else {
+          // fallback: localStorage method compatible with app.js storage shape
+          const users = JSON.parse(localStorage.getItem('lcm_users')||'{}');
+          const u = users[id];
+          if (!u) throw new Error('No user found with that email/phone.');
+          if (u.pass !== pass) throw new Error('Incorrect password.');
+          localStorage.setItem('lcm_session', id);
+        }
+        // redirect to next if provided
+        const qp = new URLSearchParams(window.location.search);
+        const next = qp.get('next') || 'index.html';
+        window.location.href = next;
+      } catch (err) {
+        alert('Login failed: ' + (err.message || err));
+      }
+    });
+  </script>
+</body>
+</html>
