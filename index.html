@@ -3,110 +3,87 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Lawyer Case Manager — Dashboard</title>
+  <title>Lawyer Case Manager</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="light">
+<body>
+
+  <!-- 🔹 Top Navigation -->
   <header class="topbar light-top">
-    <div class="brand">⚖️ <span>Lawyer Case Manager</span></div>
+    <span id="authLinks"></span>
+    <label class="theme-switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider"></span>
+    </label>
+
+
+    <div class="brand">⚖️ Lawyer Case Manager</div>
     <nav>
-      <a href="index.html" class="active">Dashboard</a>
+      <a href="index.html">Dashboard</a>
       <a href="add.html">Add Case</a>
       <a href="about.html">About</a>
+      <span id="authLinks"></span>
     </nav>
-    <div id="authLinks" style="margin-left:16px"></div>
   </header>
 
-  <main class="container">
-    <section class="panel controls">
-      <div class="row">
-        <div class="search-wrap">
-          <input id="search" placeholder="Search by case title, client, judge, court, remarks..." />
-        </div>
+  <!-- 🔹 Filters and Search Section -->
+  <section class="toolbar">
+    <input type="search" id="search" placeholder="Search cases...">
+    <select id="sortBy">
+      <option value="caseTitle">Case Title</option>
+      <option value="currentDate">Current Date</option>
+      <option value="nextDate">Next Date</option>
+    </select>
+    <select id="sortOrder">
+      <option value="asc">Asc</option>
+      <option value="desc">Desc</option>
+    </select>
 
-        <div class="top-actions">
-          <button id="todayBtn" class="btn primary">Today's Hearings</button>
-          <button id="exportBtn" class="btn">Export</button>
-          <label class="btn file-btn">
-            Import
-            <input id="importInput" type="file" accept=".json" />
-          </label>
-          <button id="clearDB" class="btn danger">Clear DB</button>
-        </div>
-      </div>
+    <select id="filterJudge"><option value="">All Judges</option></select>
+    <select id="filterCourt"><option value="">All Courts</option></select>
 
-      <div class="filters">
-        <div class="filter-group">
-          <label>Sort
-            <select id="sortBy">
-              <option value="caseTitle">Case Title</option>
-              <option value="clientName">Client Name</option>
-              <option value="currentDate">Current Hearing</option>
-              <option value="nextDate">Next Hearing</option>
-              <option value="courtNumber">Court Number</option>
-              <option value="judgeName">Judge Name</option>
-            </select>
-          </label>
-          <label>Order
-            <select id="sortOrder"><option value="asc">Asc</option><option value="desc">Desc</option></select>
-          </label>
-        </div>
+    <label><input type="checkbox" id="filterHasFiles"> Has Files</label>
+    <input type="number" id="filterUpcoming" placeholder="Upcoming (days)" min="0">
 
-        <div class="filter-group">
-          <label>Judge
-            <select id="filterJudge"><option value="">All</option></select>
-          </label>
-          <label>Court
-            <select id="filterCourt"><option value="">All</option></select>
-          </label>
-          <label class="inline">Has Files
-            <input id="filterHasFiles" type="checkbox" />
-          </label>
-        </div>
+    <input type="date" id="dateFrom">
+    <input type="date" id="dateTo">
+    <button class="btn small" id="todayBtn">Today</button>
+    <button class="btn small ghost" id="clearFilters">Clear</button>
+  </section>
 
-        <div class="filter-group">
-          <label>Upcoming (days)
-            <input id="filterUpcoming" type="number" min="0" placeholder="e.g. 7" />
-          </label>
-          <label>From
-            <input id="dateFrom" type="date" />
-          </label>
-          <label>To
-            <input id="dateTo" type="date" />
-          </label>
-        </div>
+  <!-- 🔹 Case List -->
+  <main>
+    <div id="casesList" class="cards"></div>
 
-        <div class="filter-group actions-col">
-          <button id="clearFilters" class="btn ghost">Clear Filters</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="casesList" class="grid"></section>
-
+    <!-- Template for each case -->
     <template id="caseTpl">
-      <article class="card">
-        <header class="card-head">
-          <div>
-            <h3 class="title"></h3>
-            <div class="meta"><span class="client"></span> • <span class="court"></span> • <span class="judge"></span></div>
-          </div>
-          <div class="actions">
-            <button class="viewBtn btn small">View / Edit</button>
-            <button class="delBtn btn danger small">Delete</button>
-          </div>
-        </header>
-        <div class="card-body">
-          <p><strong>Current:</strong> <span class="current"></span> <strong class="ml">Next:</strong> <span class="next"></span></p>
-          <p><strong>Files:</strong> <span class="filesCount"></span></p>
-          <div class="file-preview small-preview"></div>
+      <div class="card">
+        <h3 class="title"></h3>
+        <p><strong>Client:</strong> <span class="client"></span></p>
+        <p><strong>Court:</strong> <span class="court"></span></p>
+        <p><strong>Judge:</strong> <span class="judge"></span></p>
+        <p><strong>Current Date:</strong> <span class="current"></span></p>
+        <p><strong>Next Date:</strong> <span class="next"></span></p>
+        <p><strong>Files:</strong> <span class="filesCount"></span></p>
+        <div class="file-preview"></div>
+        <div class="actions">
+          <button class="btn small viewBtn">View / Edit</button>
+          <button class="btn small danger delBtn">Delete</button>
         </div>
-      </article>
+      </div>
     </template>
   </main>
 
-  <footer class="footer light-footer">All data is stored locally in your browser using IndexedDB (offline-first).</footer>
+  <!-- 🔹 Footer -->
+  <footer class="footer light-footer">© 2025 Lawyer Case Manager</footer>
 
+  <!-- 🔹 Firebase (compat version for browser) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+
+  <!-- 🔹 Your main logic -->
   <script src="app.js"></script>
 </body>
 </html>
