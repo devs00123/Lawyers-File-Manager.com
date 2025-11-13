@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile | Lawyer Case Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script src="app.js" defer></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f3e5f5, #e3f2fd);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .profile-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 460px;
+      text-align: center;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    h1 {
+      color: #37474f;
+      margin-bottom: 1rem;
+    }
+    .profile-pic {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #1976d2;
+      margin-bottom: 1rem;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    .btn {
+      background: #1976d2;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background: #0d47a1;
+    }
+    .section {
+      margin-top: 1.5rem;
+      text-align: left;
+    }
+    .section h3 {
+      color: #333;
+      font-size: 17px;
+      margin-bottom: 0.5rem;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 0.3rem;
+    }
+    a {
+      color: #1976d2;
+      text-decoration: none;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-card">
+    <h1>My Profile</h1>
+    <img id="profilePhoto" class="profile-pic" src="https://via.placeholder.com/110?text=User" alt="Profile Picture" />
+    <input type="file" id="photoUpload" accept="image/*" />
+    <input type="text" id="profileName" placeholder="Full Name" />
+    <input type="email" id="profileEmail" placeholder="Email" disabled />
+    <input type="text" id="profilePhone" placeholder="Phone Number" disabled />
+    <button class="btn" id="saveProfile">Save Changes</button>
+
+    <div class="section">
+      <h3>Change Password</h3>
+      <input type="password" id="newPassword" placeholder="Enter new password" />
+      <button class="btn" id="changePassword">Update Password</button>
+    </div>
+
+    <p style="margin-top:1.5rem;"><a href="index.html">← Back to Dashboard</a></p>
+  </div>
+
+  <script>
+    let currentUser;
+
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+      currentUser = user;
+      loadProfile(user);
+    });
+
+    async function loadProfile(user) {
+      const doc = await db.collection("users").doc(user.uid).get();
+      const data = doc.exists ? doc.data() : {};
+      document.querySelector("#profileName").value = data.name || "";
+      document.querySelector("#profileEmail").value = user.email || "";
+      document.querySelector("#profilePhone").value = user.phoneNumber || "";
+      if (data.photoURL) {
+        document.querySelector("#profilePhoto").src = data.photoURL;
+      }
+    }
+
+    // Photo upload
+    document.querySelector("#photoUpload").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file || !currentUser) return;
+      try {
+        const ref = storage.ref(`users/${currentUser.uid}/profile/${file.name}`);
+        const snap = await ref.put(file);
+        const url = await snap.ref.getDownloadURL();
+        await db.collection("users").doc(currentUser.uid).update({ photoURL: url });
+        document.querySelector("#profilePhoto").src = url;
+        alert("✅ Profile photo updated!");
+      } catch (err) {
+        alert("⚠️ " + err.message);
+      }
+    });
+
+    // Name update
+    document.querySelector("#saveProfile").addEventListener("click", async () => {
+      if (!currentUser) return;
+      const name = document.querySelector("#profileName").value.trim();
+      try {
+        await db.collection("users").doc(currentUser.uid).set({ name }, { merge: true });
+        await currentUser.updateProfile({ displayName: name });
+        alert("✅ Profile updated successfully!");
+      } catch (err) {
+        alert("⚠️ " + err.message);
+      }
+    });
+
+    // Change Password
+    document.querySelector("#changePassword").addEventListener("click", async () => {
+      const newPass = document.querySelector("#newPassword").value.trim();
+      if (!newPass) return alert("Please enter a new password.");
+      try {
+        if (currentUser.providerData[0].providerId === "phone") {
+          // Phone-auth users cannot change password; send message instead
+          alert("📱 You signed in with phone number. Password reset not applicable.");
+          return;
+        }
+        await currentUser.updatePassword(newPass);
+        alert("✅ Password updated successfully!");
+        document.querySelector("#newPassword").value = "";
+      } catch (err) {
+        if (err.code === "auth/requires-recent-login") {
+          // Firebase requires re-authentication
+          alert("⚠️ Please log out and log back in to change your password.");
+        } else {
+          alert("❌ " + err.message);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
