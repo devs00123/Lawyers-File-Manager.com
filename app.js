@@ -13,11 +13,12 @@ const firebaseConfig = {
   apiKey: "AIzaSyAeYlJB99zUH36t-sDREuiSK8LFFF64go0",
   authDomain: "lawyercasemanager-17972.firebaseapp.com",
   projectId: "lawyercasemanager-17972",
-  storageBucket: "lawyercasemanager-17972.firebasestorage.app",
+  storageBucket: "lawyercasemanager-17972.appspot.com",   // ✅ important: use .appspot.com
   messagingSenderId: "996102566916",
   appId: "1:996102566916:web:76d1cf6031eb74c06db151",
   measurementId: "G-BE79DPJY43"
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -581,38 +582,96 @@ function protectPagesRequiringLogin() {
 }
 
 /* expose some helpers for login page scripts if needed */
+/* ---------- Firebase Auth Integration ---------- */
 window.lcm_auth = {
-  registerUser: (name, email, phone, password) => {
-    const users = getUsersStore();
-    if (!email && !phone) throw new Error('Email or phone required.');
-    const id = (email || phone).toLowerCase();
-    if (users[id]) throw new Error('User already exists with that email/phone.');
-    // store password in plain form for simplicity (not secure) — in production use hashing & server
-    users[id] = { name, email, phone, pass: password };
-    saveUsersStore(users);
-    loginSessionSet(id);
+  async signup(name, email, password) {
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      const uid = cred.user.uid;
+      await db.collection("users").doc(uid).set({ name, email });
+      loginSessionSet(uid);
+      console.log("✅ User registered:", uid);
+      window.location.href = "index.html";
+    } catch (err) {
+      alert("Signup failed: " + err.message);
+    }
   },
-  loginUser: (identifier, password) => {
-    const users = getUsersStore();
-    const id = (identifier || '').toLowerCase();
-    const u = users[id];
-    if (!u) throw new Error('No user found for that email/phone.');
-    if (u.pass !== password) throw new Error('Incorrect password.');
-    loginSessionSet(id);
+
+  async login(email, password) {
+    try {
+      const cred = await auth.signInWithEmailAndPassword(email, password);
+      const uid = cred.user.uid;
+      loginSessionSet(uid);
+      console.log("✅ Logged in:", uid);
+      window.location.href = "index.html";
+    } catch (err) {
+      alert("Login failed: " + err.message);
+    }
   },
-  logout,
-  currentUser: getCurrentUser,
-  isLoggedIn
+
+  async logout() {
+    await auth.signOut();
+    loginSessionClear();
+    console.log("🚪 Signed out");
+    window.location.href = "login.html";
+  },
+
+  currentUser: () => auth.currentUser,
+  isLoggedIn: () => !!auth.currentUser
 };
+
+// Keep top bar links updated dynamically
+auth.onAuthStateChanged((user) => {
+  fillAuthLinks();
+  if (!user && ['index.html', 'add.html'].includes(location.pathname.split('/').pop())) {
+    window.location.href = "login.html";
+  }
+});
+
 /* ---------- Cloud Sync ---------- */
 async function syncToCloud(uid) {
   if (!uid) return;
   const coll = db.collection("users").doc(uid).collection("cases");
+
   for (const c of cache) {
-    await coll.doc(String(c.id)).set(c, { merge: true });
+    const caseId = String(c.id);
+
+    // Deep copy
+    const cleanCase = JSON.parse(JSON.stringify(c));
+
+    // Upload files if they exist
+    if (Array.isArray(c.files) && c.files.length) {
+      const uploaded = [];
+
+      for (const f of c.files) {
+        // Only upload valid file objects with base64 data
+        if (f && typeof f.data === "string" && f.data.startsWith("data:")) {
+          try {
+            const ref = storage.ref(`users/${uid}/cases/${caseId}/${f.name}`);
+            const snap = await ref.putString(f.data, "data_url");
+            const url = await snap.ref.getDownloadURL();
+            uploaded.push({ name: f.name, url });
+          } catch (err) {
+            console.error("⚠️ File upload failed:", f.name, err);
+          }
+        } else if (f && f.url) {
+          // Already uploaded file with URL
+          uploaded.push({ name: f.name, url: f.url });
+        }
+      }
+
+      cleanCase.files = uploaded;
+    } else {
+      delete cleanCase.files;
+    }
+
+    await coll.doc(caseId).set(cleanCase, { merge: true });
   }
-  console.log("✅ Synced to cloud");
+
+  console.log("✅ Synced to cloud (files uploaded safely)");
 }
+
+
 
 async function syncFromCloud(uid) {
   if (!uid) return;
