@@ -23,7 +23,17 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
-firebase.firestore().enablePersistence().catch(console.error);
+firebase.firestore()
+  .enablePersistence({ synchronizeTabs: true })
+  .catch(err => {
+    if (err.code === 'failed-precondition') {
+      console.warn("⚠️ Persistence disabled: multiple tabs open.");
+    } else if (err.code === 'unimplemented') {
+      console.warn("⚠️ Browser does not support persistence.");
+    } else {
+      console.error(err);
+    }
+  });
 
 
 /* ---------- Helpers ---------- */
@@ -560,18 +570,32 @@ function fillAuthLinks() {
   const wrap = $('#authLinks');
   if (!wrap) return;
 
-  if (isLoggedIn()) {
-    const u = getCurrentUser();
-    const user = auth.currentUser;
-    const name = (u && u.name) || user?.displayName || user?.email || user?.phoneNumber || "User";
+  const user = auth.currentUser;
+  if (!user) {
     wrap.innerHTML = `
-      <span class="muted">Hello, ${escapeHtml(name)}</span>
-      <button id="logoutBtn" class="btn ghost small">Logout</button>`;
-    $('#logoutBtn').addEventListener('click', logout);
-  } else {
-    wrap.innerHTML = `<a class="btn" href="login.html">Login</a><a class="btn ghost" href="signup.html">Signup</a>`;
+      <a class="btn" href="login.html">Login</a>
+      <a class="btn ghost" href="signup.html">Signup</a>
+    `;
+    return;
   }
+
+  const name = user.displayName || user.email || user.phoneNumber || "User";
+  wrap.innerHTML = `
+    <span class="muted">Hello, ${escapeHtml(name)}</span>
+    <button id="logoutBtn" class="btn ghost small">Logout</button>
+  `;
+
+  $('#logoutBtn').addEventListener('click', async () => {
+    await auth.signOut();
+    window.location.href = "login.html";
+  });
 }
+
+// 🧠 New: Run this only after Firebase Auth finishes loading
+auth.onAuthStateChanged(user => {
+  fillAuthLinks();
+});
+
 
 
 function protectPagesRequiringLogin() {
