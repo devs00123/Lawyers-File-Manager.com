@@ -10,6 +10,7 @@ html, body {
   height: 100%;
   background: #f9fbff;
   color: #1e1e1e;
+  scroll-behavior: smooth;
 }
 
 :root {
@@ -21,6 +22,11 @@ html, body {
   --rounded: 14px;
   --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   --max-width: 1200px;
+
+  /* Typography scale */
+  --h1: clamp(1.5rem, 2vw + 1rem, 2.2rem);
+  --h2: clamp(1.2rem, 1.5vw + 0.9rem, 1.8rem);
+  --text: clamp(0.9rem, 0.5vw + 0.8rem, 1rem);
 }
 
 /* ---------- Layout Basics ---------- */
@@ -33,10 +39,12 @@ main {
 h1, h2 {
   color: var(--primary-dark);
   margin-bottom: 0.75rem;
+  font-size: var(--h1);
 }
 
 p {
   line-height: 1.6;
+  font-size: var(--text);
 }
 
 /* ---------- Topbar ---------- */
@@ -49,7 +57,8 @@ p {
   box-shadow: var(--shadow);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 100;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .topbar .brand {
@@ -64,7 +73,8 @@ p {
 .topbar nav {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .topbar nav a {
@@ -84,7 +94,8 @@ p {
 #authLinks {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 #authLinks .muted {
@@ -102,16 +113,18 @@ p {
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.15s;
 }
 
 .btn:hover {
   background: var(--primary-dark);
   transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }
 
 .btn:active {
   transform: translateY(0);
+  box-shadow: none;
 }
 
 .btn.ghost {
@@ -141,26 +154,34 @@ p {
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   padding: 12px 1.2rem;
   background: #f5f7ff;
   border-bottom: 1px solid #e0e4f5;
+  justify-content: space-between;
 }
 
 .toolbar input,
 .toolbar select {
-  padding: 6px 8px;
+  padding: 8px 10px;
   border: 1px solid #d0d6f5;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.9rem;
-  flex: 1 1 140px;
+  flex: 1 1 150px;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.toolbar input:focus,
+.toolbar select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(36, 72, 240, 0.15);
 }
 
 /* ---------- Case Cards ---------- */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
   padding: 20px 0;
 }
 
@@ -168,7 +189,7 @@ p {
   background: var(--panel);
   border-radius: var(--rounded);
   box-shadow: var(--shadow);
-  padding: 16px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -176,8 +197,8 @@ p {
 }
 
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
 .card h3 {
@@ -196,6 +217,7 @@ p {
   display: flex;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .file-preview {
@@ -219,15 +241,16 @@ form {
   padding: 2rem;
   border-radius: var(--rounded);
   box-shadow: var(--shadow);
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 650px;
+  margin: 2rem auto;
+  transition: all 0.3s ease;
 }
 
 label {
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #333;
 }
 
@@ -235,12 +258,20 @@ input,
 textarea,
 select {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid #d0d6f5;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-top: 4px;
   font-size: 0.95rem;
   background: #fff;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(36, 72, 240, 0.15);
 }
 
 textarea {
@@ -249,10 +280,11 @@ textarea {
 
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
 }
 
+/* ---------- Files / Chips ---------- */
 .file-list {
   display: flex;
   flex-direction: column;
@@ -263,16 +295,21 @@ textarea {
 .file-chip {
   background: var(--light-bg);
   border: 1px solid #e4e8ff;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 8px;
   display: flex;
   align-items: center;
   gap: 10px;
+  transition: background 0.2s ease;
+}
+
+.file-chip:hover {
+  background: #eaefff;
 }
 
 .file-chip img {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 6px;
   object-fit: cover;
 }
@@ -285,6 +322,7 @@ textarea {
   border-top: 1px solid #e0e4f5;
   color: var(--muted);
   font-size: 0.85rem;
+  margin-top: 2rem;
 }
 
 /* ---------- About Page ---------- */
@@ -296,54 +334,56 @@ textarea {
   border-radius: var(--rounded);
   box-shadow: var(--shadow);
 }
+
 .about ul {
   margin: 1rem 0 1.5rem 1.2rem;
   line-height: 1.6;
 }
+
 .about a {
   color: var(--primary-dark);
   text-decoration: none;
 }
 
 /* ---------- Responsive Tweaks ---------- */
-@media (max-width: 768px) {
-  .topbar nav {
-    flex-wrap: wrap;
-    gap: 8px;
+@media (max-width: 992px) {
+  main {
+    padding: 1rem;
   }
-
   .toolbar {
     flex-direction: column;
     align-items: stretch;
   }
-
-  form {
-    padding: 1.2rem;
-  }
-
   .btn {
     width: 100%;
-    text-align: center;
+  }
+  form {
+    padding: 1.5rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .topbar {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 10px;
   }
-
   .cards {
     grid-template-columns: 1fr;
   }
-
+  .card {
+    padding: 1.2rem;
+  }
+  .btn {
+    font-size: 1rem;
+  }
   input,
   textarea,
   select {
     font-size: 1rem;
   }
 }
+
 /* ---------- Dark Mode ---------- */
 :root[data-theme='dark'] {
   --primary: #5b7bff;
@@ -355,14 +395,10 @@ textarea {
   color: #e3e3f0;
 }
 
-:root[data-theme='dark'] .topbar {
-  background: var(--panel);
-  box-shadow: none;
-}
-
+:root[data-theme='dark'] .topbar,
 :root[data-theme='dark'] .footer {
   background: var(--panel);
-  border-top: 1px solid #2e2e44;
+  border-color: #2e2e44;
 }
 
 :root[data-theme='dark'] .card,
@@ -389,4 +425,8 @@ textarea {
 :root[data-theme='dark'] .btn.ghost {
   color: #b7c3ff;
   border-color: #4b4b75;
+}
+
+:root[data-theme='dark'] .btn:hover {
+  background: #6d85ff;
 }
