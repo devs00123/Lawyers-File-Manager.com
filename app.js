@@ -8,6 +8,22 @@
 const DB_NAME = 'LawyerCaseDB';
 const STORE = 'cases';
 const DB_VERSION = 4;
+// --- Firebase setup ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAeYlJB99zUH36t-sDREuiSK8LFFF64go0",
+  authDomain: "lawyercasemanager-17972.firebaseapp.com",
+  projectId: "lawyercasemanager-17972",
+  storageBucket: "lawyercasemanager-17972.firebasestorage.app",
+  messagingSenderId: "996102566916",
+  appId: "1:996102566916:web:76d1cf6031eb74c06db151",
+  measurementId: "G-BE79DPJY43"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+firebase.firestore().enablePersistence().catch(console.error);
+
 
 /* ---------- Helpers ---------- */
 const $ = sel => document.querySelector(sel);
@@ -460,6 +476,9 @@ async function initFormPage() {
       window.location.href = 'index.html';
     }
   });
+  const user = auth.currentUser;
+  if (user) await syncToCloud(user.uid);
+
 }
 
 /* ---------- Export / Import / Clear DB ---------- */
@@ -585,3 +604,65 @@ window.lcm_auth = {
   currentUser: getCurrentUser,
   isLoggedIn
 };
+/* ---------- Cloud Sync ---------- */
+async function syncToCloud(uid) {
+  if (!uid) return;
+  const coll = db.collection("users").doc(uid).collection("cases");
+  for (const c of cache) {
+    await coll.doc(String(c.id)).set(c, { merge: true });
+  }
+  console.log("✅ Synced to cloud");
+}
+
+async function syncFromCloud(uid) {
+  if (!uid) return;
+  const coll = db.collection("users").doc(uid).collection("cases");
+  const snap = await coll.get();
+  const docs = snap.docs.map(d => d.data());
+  await clearLocal();
+  for (const c of docs) await saveCase(c);
+  cache = docs;
+  renderCases();
+  console.log("✅ Loaded from cloud");
+}
+
+async function clearLocal() {
+  return new Promise(resolve => {
+    const tx = DB.transaction("cases", "readwrite");
+    tx.objectStore("cases").clear();
+    tx.oncomplete = resolve;
+  });
+}
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    console.log("Signed in:", user.email);
+    await syncFromCloud(user.uid);
+  } else {
+    console.log("Signed out");
+  }
+});
+/* ---------- Animated Dark Mode Toggle ---------- */
+(function darkModeSetup() {
+  const root = document.documentElement;
+  const toggle = document.getElementById('themeToggle');
+  if (!toggle) return;
+
+  // Detect saved or system theme
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const saved = localStorage.getItem('lcm_theme') || (prefersDark ? 'dark' : 'light');
+
+  if (saved === 'dark') {
+    root.setAttribute('data-theme', 'dark');
+    toggle.checked = true;
+  }
+
+  toggle.addEventListener('change', () => {
+    if (toggle.checked) {
+      root.setAttribute('data-theme', 'dark');
+      localStorage.setItem('lcm_theme', 'dark');
+    } else {
+      root.removeAttribute('data-theme');
+      localStorage.setItem('lcm_theme', 'light');
+    }
+  });
+})();
