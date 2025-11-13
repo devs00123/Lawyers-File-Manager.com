@@ -10,170 +10,288 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
   <script src="app.js" defer></script>
+
   <style>
+    /* ---------- Layout ---------- */
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #f3e5f5, #e3f2fd);
+      background: var(--light-bg);
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      height: 100vh;
       margin: 0;
+      overflow: hidden;
     }
-    .profile-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+
+    .profile-container {
+      background: var(--panel);
       width: 100%;
-      max-width: 460px;
+      max-width: 480px;
+      height: 95vh;
+      border-radius: var(--rounded);
+      box-shadow: var(--shadow);
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      position: relative;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    /* ---------- Sticky, Auto-Hiding Header ---------- */
+    .profile-header {
+      position: sticky;
+      top: 0;
+      background: var(--primary);
+      color: white;
+      padding: 1rem;
       text-align: center;
-      animation: fadeIn 0.4s ease-in-out;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border-top-left-radius: var(--rounded);
+      border-top-right-radius: var(--rounded);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
-    h1 {
-      color: #37474f;
-      margin-bottom: 1rem;
+
+    .profile-header.hide {
+      transform: translateY(-100%);
+      opacity: 0;
     }
+
+    .profile-header a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.4rem;
+      position: absolute;
+      left: 1rem;
+    }
+
+    /* ---------- Content ---------- */
+    .profile-content {
+      padding: 1.8rem 1.5rem;
+      flex: 1;
+    }
+
     .profile-pic {
       width: 110px;
       height: 110px;
       border-radius: 50%;
       object-fit: cover;
-      border: 3px solid #1976d2;
-      margin-bottom: 1rem;
+      border: 3px solid var(--primary);
+      display: block;
+      margin: 1rem auto;
     }
-    input, button {
+
+    .profile-content input[type="file"] {
+      display: block;
+      margin: 0.6rem auto 1.2rem;
+      font-size: 0.9rem;
+    }
+
+    .profile-content input {
       width: 100%;
       padding: 12px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
+      border: 1px solid #d0d6f5;
       border-radius: 8px;
-      font-size: 15px;
+      margin-bottom: 0.9rem;
+      font-size: 0.95rem;
+      background: #fff;
     }
+
+    input[readonly] {
+      background: #f3f4f9;
+      color: #777;
+      cursor: not-allowed;
+    }
+
     .btn {
-      background: #1976d2;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      transition: 0.3s;
+      display: block;
+      width: 100%;
+      margin-top: 0.4rem;
+      text-align: center;
     }
-    .btn:hover {
-      background: #0d47a1;
+
+    .btn.danger {
+      background: #e11d48;
     }
+
+    .btn.danger:hover {
+      background: #be123c;
+    }
+
     .section {
-      margin-top: 1.5rem;
-      text-align: left;
+      margin-top: 1.8rem;
     }
+
     .section h3 {
-      color: #333;
-      font-size: 17px;
-      margin-bottom: 0.5rem;
-      border-bottom: 2px solid #eee;
+      color: var(--primary-dark);
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+      border-bottom: 2px solid #e0e4f5;
       padding-bottom: 0.3rem;
     }
-    a {
-      color: #1976d2;
-      text-decoration: none;
+
+    /* ---------- Scrollbar ---------- */
+    .profile-container::-webkit-scrollbar {
+      width: 6px;
     }
+    .profile-container::-webkit-scrollbar-thumb {
+      background-color: rgba(0,0,0,0.2);
+      border-radius: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .profile-content {
+        padding: 1.2rem;
+      }
+      .profile-pic {
+        width: 90px;
+        height: 90px;
+      }
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
-<body>
-  <div class="profile-card">
-    <h1>My Profile</h1>
-    <img id="profilePhoto" class="profile-pic" src="https://via.placeholder.com/110?text=User" alt="Profile Picture" />
-    <input type="file" id="photoUpload" accept="image/*" />
-    <input type="text" id="profileName" placeholder="Full Name" />
-    <input type="email" id="profileEmail" placeholder="Email" disabled />
-    <input type="text" id="profilePhone" placeholder="Phone Number" disabled />
-    <button class="btn" id="saveProfile">Save Changes</button>
 
-    <div class="section">
-      <h3>Change Password</h3>
-      <input type="password" id="newPassword" placeholder="Enter new password" />
-      <button class="btn" id="changePassword">Update Password</button>
+<body>
+  <div class="profile-container" id="scrollContainer">
+    <!-- 🔹 Fixed Header -->
+    <div class="profile-header" id="profileHeader">
+      <a href="index.html">←</a>
+      <span>My Profile</span>
     </div>
 
-    <p style="margin-top:1.5rem;"><a href="index.html">← Back to Dashboard</a></p>
+    <!-- 🔹 Scrollable Content -->
+    <div class="profile-content">
+      <img id="profilePhoto" class="profile-pic" src="https://via.placeholder.com/110?text=User" alt="Profile Picture" />
+      <input type="file" id="photoUpload" accept="image/*" />
+
+      <input type="text" id="profileName" placeholder="Full Name" />
+      <input type="email" id="profileEmail" placeholder="Email" readonly />
+      <input type="text" id="profilePhone" placeholder="Phone Number" readonly />
+      <button class="btn" id="saveProfile">Save Changes</button>
+
+      <div class="section">
+        <h3>Change Password</h3>
+        <input type="password" id="oldPassword" placeholder="Current Password" />
+        <input type="password" id="newPassword" placeholder="New Password" />
+        <button class="btn" id="changePasswordBtn">Update Password</button>
+      </div>
+
+      <div class="section">
+        <h3>Account</h3>
+        <button class="btn" id="logoutBtn">Logout</button>
+        <button class="btn danger" id="deleteAccountBtn">Delete Account</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    let currentUser;
+    // 🔹 Auto-hide header when scrolling
+    const scrollContainer = document.getElementById('scrollContainer');
+    const header = document.getElementById('profileHeader');
+    let lastScroll = 0;
 
-    auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
+    scrollContainer.addEventListener('scroll', () => {
+      const currentScroll = scrollContainer.scrollTop;
+      if (currentScroll > lastScroll && currentScroll > 60) {
+        header.classList.add('hide'); // scroll down → hide
+      } else {
+        header.classList.remove('hide'); // scroll up → show
       }
-      currentUser = user;
-      loadProfile(user);
+      lastScroll = currentScroll;
     });
 
-    async function loadProfile(user) {
-      const doc = await db.collection("users").doc(user.uid).get();
-      const data = doc.exists ? doc.data() : {};
-      document.querySelector("#profileName").value = data.name || "";
+    // 🔹 Firebase logic
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) return (window.location.href = "login.html");
+
       document.querySelector("#profileEmail").value = user.email || "";
       document.querySelector("#profilePhone").value = user.phoneNumber || "";
-      if (data.photoURL) {
-        document.querySelector("#profilePhoto").src = data.photoURL;
-      }
-    }
 
-    // Photo upload
-    document.querySelector("#photoUpload").addEventListener("change", async (e) => {
-      const file = e.target.files[0];
-      if (!file || !currentUser) return;
-      try {
-        const ref = storage.ref(`users/${currentUser.uid}/profile/${file.name}`);
-        const snap = await ref.put(file);
-        const url = await snap.ref.getDownloadURL();
-        await db.collection("users").doc(currentUser.uid).update({ photoURL: url });
-        document.querySelector("#profilePhoto").src = url;
-        alert("✅ Profile photo updated!");
-      } catch (err) {
-        alert("⚠️ " + err.message);
-      }
-    });
+      const doc = await db.collection("users").doc(user.uid).get();
+      const data = doc.exists ? doc.data() : {};
+      document.querySelector("#profileName").value = data.name || user.displayName || "";
+      if (data.photoURL || user.photoURL)
+        document.querySelector("#profilePhoto").src = data.photoURL || user.photoURL;
 
-    // Name update
-    document.querySelector("#saveProfile").addEventListener("click", async () => {
-      if (!currentUser) return;
-      const name = document.querySelector("#profileName").value.trim();
-      try {
-        await db.collection("users").doc(currentUser.uid).set({ name }, { merge: true });
-        await currentUser.updateProfile({ displayName: name });
-        alert("✅ Profile updated successfully!");
-      } catch (err) {
-        alert("⚠️ " + err.message);
-      }
-    });
-
-    // Change Password
-    document.querySelector("#changePassword").addEventListener("click", async () => {
-      const newPass = document.querySelector("#newPassword").value.trim();
-      if (!newPass) return alert("Please enter a new password.");
-      try {
-        if (currentUser.providerData[0].providerId === "phone") {
-          // Phone-auth users cannot change password; send message instead
-          alert("📱 You signed in with phone number. Password reset not applicable.");
-          return;
+      // Save Profile
+      document.querySelector("#saveProfile").addEventListener("click", async () => {
+        const name = document.querySelector("#profileName").value.trim();
+        try {
+          await user.updateProfile({ displayName: name });
+          await db.collection("users").doc(user.uid).set({ name }, { merge: true });
+          alert("✅ Profile updated!");
+        } catch (err) {
+          alert("⚠️ " + err.message);
         }
-        await currentUser.updatePassword(newPass);
-        alert("✅ Password updated successfully!");
-        document.querySelector("#newPassword").value = "";
-      } catch (err) {
-        if (err.code === "auth/requires-recent-login") {
-          // Firebase requires re-authentication
-          alert("⚠️ Please log out and log back in to change your password.");
-        } else {
+      });
+
+      // Upload Photo
+      document.querySelector("#photoUpload").addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const ref = storage.ref(`users/${user.uid}/profile/${file.name}`);
+          const snap = await ref.put(file);
+          const url = await snap.ref.getDownloadURL();
+          await user.updateProfile({ photoURL: url });
+          await db.collection("users").doc(user.uid).set({ photoURL: url }, { merge: true });
+          document.querySelector("#profilePhoto").src = url;
+          alert("✅ Profile photo updated!");
+        } catch (err) {
           alert("❌ " + err.message);
         }
-      }
+      });
+
+      // Change Password
+      document.querySelector("#changePasswordBtn").addEventListener("click", async () => {
+        const oldPass = document.querySelector("#oldPassword").value;
+        const newPass = document.querySelector("#newPassword").value;
+        if (!oldPass || !newPass) return alert("⚠️ Please fill both fields.");
+        const cred = firebase.auth.EmailAuthProvider.credential(user.email, oldPass);
+        try {
+          await user.reauthenticateWithCredential(cred);
+          await user.updatePassword(newPass);
+          alert("✅ Password updated!");
+          document.querySelector("#oldPassword").value = "";
+          document.querySelector("#newPassword").value = "";
+        } catch (err) {
+          alert("❌ " + err.message);
+        }
+      });
+
+      // Logout
+      document.querySelector("#logoutBtn").addEventListener("click", async () => {
+        await auth.signOut();
+        alert("You’ve been logged out successfully!");
+        window.location.href = "login.html";
+      });
+
+      // Delete Account
+      document.querySelector("#deleteAccountBtn").addEventListener("click", async () => {
+        if (!confirm("⚠️ Are you sure you want to permanently delete your account and all data?")) return;
+        try {
+          const userRef = db.collection("users").doc(user.uid);
+          const cases = await userRef.collection("cases").get();
+          for (const c of cases.docs) await userRef.collection("cases").doc(c.id).delete();
+          await userRef.delete();
+          await user.delete();
+          alert("✅ Account deleted successfully!");
+          window.location.href = "signup.html";
+        } catch (err) {
+          if (err.code === "auth/requires-recent-login")
+            alert("⚠️ Please log out and log back in to delete your account.");
+          else alert("❌ " + err.message);
+        }
+      });
     });
   </script>
 </body>
