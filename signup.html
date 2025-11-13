@@ -3,79 +3,71 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Signup — Lawyer Case Manager</title>
+  <title>Sign Up — Lawyer Case Manager</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    main {display:flex;justify-content:center;align-items:center;min-height:80vh;}
+    form{background:var(--panel);padding:30px;border-radius:var(--rounded);
+         box-shadow:var(--card-shadow);width:100%;max-width:420px;}
+    h1{margin-bottom:18px;text-align:center;color:#06266f;}
+    label{display:block;margin-bottom:10px;font-size:14px;}
+    input{width:100%;padding:10px;border:1px solid #eef4ff;border-radius:8px;margin-top:4px;}
+    .btn{width:100%;margin-top:14px;}
+    .alt{text-align:center;margin-top:10px;font-size:14px;}
+  </style>
 </head>
 <body>
-  <main class="container auth-wrap">
-    <div class="auth-card">
-      <div class="auth-side auth-visual">
-        <h2>Create account ✨</h2>
-        <p>Register with name, email, phone and password. This is a local, browser-only account (stored in your browser).</p>
-        <div style="margin-top:18px;font-size:13px;color:var(--muted)">No server involved — for cloud sign-in we can add server integration later.</div>
-      </div>
+  <header class="topbar light-top">
+    <span id="authLinks"></span>
+    <label class="theme-switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider"></span>
+    </label>
 
-      <div class="auth-side">
-        <form id="signupForm" class="auth-form" autocomplete="off">
-          <label> Full Name
-            <input id="suName" required placeholder="Your name" />
-          </label>
+    <div class="brand">⚖️ Lawyer Case Manager</div>
+  </header>
 
-          <label> Email
-            <input id="suEmail" type="email" required placeholder="email@example.com" />
-          </label>
-
-          <label> Phone
-            <input id="suPhone" type="tel" required placeholder="+91 98..." />
-          </label>
-
-          <label> Password
-            <input id="suPass" type="password" required />
-          </label>
-
-          <label> Confirm Password
-            <input id="suPass2" type="password" required />
-          </label>
-
-          <div class="auth-actions">
-            <button class="btn primary" type="submit">Create account</button>
-            <a href="login.html" class="btn ghost">Back to login</a>
-          </div>
-        </form>
-      </div>
-    </div>
+  <main>
+    <form id="signupForm">
+      <h1>Create Account</h1>
+      <label>Full Name
+        <input id="name" required placeholder="Your name">
+      </label>
+      <label>Email
+        <input id="email" type="email" placeholder="you@example.com">
+      </label>
+      <label>Phone
+        <input id="phone" type="tel" placeholder="9998887777">
+      </label>
+      <label>Password
+        <input id="password" type="password" required>
+      </label>
+      <button type="submit" class="btn primary">Sign Up</button>
+      <div class="alt">Already have an account? <a href="login.html">Login</a></div>
+    </form>
   </main>
 
+  <footer class="footer light-footer">© 2025 Lawyer Case Manager</footer>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+  <script src="app.js"></script>
   <script>
-    function normalizeId(s){ return (s||'').toLowerCase().trim(); }
-
-    document.getElementById('signupForm').addEventListener('submit', (ev) => {
-      ev.preventDefault();
-      const name = document.getElementById('suName').value.trim();
-      const email = normalizeId(document.getElementById('suEmail').value);
-      const phone = normalizeId(document.getElementById('suPhone').value);
-      const pass = document.getElementById('suPass').value;
-      const pass2 = document.getElementById('suPass2').value;
-
-      if (pass !== pass2) return alert('Passwords do not match.');
-      if (!email && !phone) return alert('Provide email or phone.');
-
+    const form = document.getElementById('signupForm');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
       try {
-        if (window.lcm_auth && window.lcm_auth.registerUser) {
-          // prefer app.js helper if loaded
-          window.lcm_auth.registerUser(name, email, phone, pass);
-        } else {
-          // fallback minimal local register logic
-          const users = JSON.parse(localStorage.getItem('lcm_users')||'{}');
-          const id = (email || phone).toLowerCase();
-          if (users[id]) throw new Error('User already exists.');
-          users[id] = { name, email, phone, pass };
-          localStorage.setItem('lcm_users', JSON.stringify(users));
-          localStorage.setItem('lcm_session', id);
-        }
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const pass = document.getElementById('password').value.trim();
+        window.lcm_auth.registerUser(name, email, phone, pass);
+        alert('Account created!');
         window.location.href = 'index.html';
       } catch (err) {
-        alert('Signup failed: ' + (err.message || err));
+        alert(err.message);
       }
     });
   </script>
