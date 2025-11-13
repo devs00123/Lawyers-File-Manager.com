@@ -6,78 +6,89 @@
   <title>Add / Edit Case — Lawyer Case Manager</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="light">
+<body>
+
+  <!-- 🔹 Header -->
   <header class="topbar light-top">
-    <div class="brand">⚖️ <span>Lawyer Case Manager</span></div>
+    <span id="authLinks"></span>
+    <label class="theme-switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider"></span>
+    </label>
+
+    <div class="brand">⚖️ Lawyer Case Manager</div>
     <nav>
       <a href="index.html">Dashboard</a>
       <a href="add.html" class="active">Add Case</a>
       <a href="about.html">About</a>
+      <span id="authLinks"></span>
     </nav>
-    <div id="authLinks" style="margin-left:16px"></div>
   </header>
 
-  <main class="container narrow">
-    <section class="form-card form-animate">
-      <h1 id="formTitle">Add New Case</h1>
-      <form id="caseForm" autocomplete="off">
-        <input type="hidden" id="caseId" />
+  <!-- 🔹 Case Form -->
+  <main>
+    <h1 id="formTitle">Add Case</h1>
+    <form id="caseForm" class="form">
+      <input type="hidden" id="caseId">
 
-        <label>Case Title
-          <input id="caseTitle" required placeholder="e.g. ABC vs XYZ" />
+      <label>Case Title
+        <input id="caseTitle" required placeholder="Enter case title">
+      </label>
+
+      <label>Client Name
+        <input id="clientName" required placeholder="Client name">
+      </label>
+
+      <label>Client Contact (Email)
+        <input id="contact" type="email" placeholder="client@example.com">
+      </label>
+
+      <label>Client Phone
+        <input id="phone" type="tel" placeholder="9998887777">
+      </label>
+
+      <label>Court Number
+        <input id="courtNumber" placeholder="Court number">
+      </label>
+
+      <label>Judge Name
+        <input id="judgeName" placeholder="Judge name">
+      </label>
+
+      <label>Remarks
+        <textarea id="remarks" rows="3" placeholder="Additional details..."></textarea>
+      </label>
+
+      <div class="grid-2">
+        <label>Current Hearing Date
+          <input type="date" id="currentDate">
         </label>
-
-        <label>Client Name
-          <input id="clientName" required />
+        <label>Next Hearing Date
+          <input type="date" id="nextDate">
         </label>
+      </div>
 
-        <div class="row">
-          <label>Contact (email)
-            <input id="contact" type="email" placeholder="client@example.com" />
-          </label>
-          <label>Phone
-            <input id="phone" type="tel" placeholder="+91 98765 43210" />
-          </label>
-        </div>
+      <label>Attach Files
+        <input type="file" id="filesInput" multiple accept="image/*,.pdf,.doc,.docx,.txt">
+      </label>
 
-        <label>Court Number
-          <input id="courtNumber" />
-        </label>
+      <div id="existingFiles" class="file-list"></div>
 
-        <label>Judge Name
-          <input id="judgeName" />
-        </label>
-
-        <label>Purpose / Remarks
-          <textarea id="remarks" rows="3"></textarea>
-        </label>
-
-        <div class="row">
-          <label>Current Date of Hearing
-            <input id="currentDate" type="date" required />
-          </label>
-
-          <label>Next Date of Hearing
-            <input id="nextDate" type="date" required />
-          </label>
-        </div>
-
-        <label>Attach files (pdf, images)
-          <input id="filesInput" type="file" multiple accept=".pdf,image/*" />
-        </label>
-
-        <div id="existingFiles" class="existing-files"></div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn primary">Save Case</button>
-          <a href="index.html" class="btn ghost">Back</a>
-        </div>
-      </form>
-    </section>
+      <button type="submit" class="btn primary">Save Case</button>
+      <a href="index.html" class="btn ghost">Cancel</a>
+    </form>
   </main>
 
-  <footer class="footer light-footer">Tip: Next Date auto-updates to Current + 30 days. You can edit it manually.</footer>
+  <!-- 🔹 Footer -->
+  <footer class="footer light-footer">© 2025 Lawyer Case Manager</footer>
 
+  <!-- 🔹 Firebase (compat version for browser) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+
+  <!-- 🔹 Your main logic -->
   <script src="app.js"></script>
 </body>
 </html>
