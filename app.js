@@ -707,12 +707,23 @@ async function syncFromCloud(uid) {
   const coll = db.collection("users").doc(uid).collection("cases");
   const snap = await coll.get();
   const docs = snap.docs.map(d => d.data());
-  await clearLocal();
-  for (const c of docs) await saveCase(c);
-  cache = docs;
+
+  // 🔹 Merge cloud and local data
+  await reloadCache();
+  const localMap = new Map(cache.map(c => [c.id, c]));
+  for (const c of docs) localMap.set(c.id, c);
+
+  // save back merged data locally
+  await txPromise(DB, 'readwrite', store => {
+    store.clear();
+    for (const item of localMap.values()) store.add(item);
+  });
+
+  cache = Array.from(localMap.values());
   renderCases();
-  console.log("✅ Loaded from cloud");
+  console.log("✅ Synced (merged) from cloud");
 }
+
 
 async function clearLocal() {
   return new Promise(resolve => {
