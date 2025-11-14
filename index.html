@@ -1,90 +1,54 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Lawyer Case Manager</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lawyer Case Manager – Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <nav class="navbar">
+    <div class="logo">CaseManager</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="add.html">Add Case</a></li>
+      <li><a href="#" id="logoutBtn">Logout</a></li>
+    </ul>
+    <button class="dark-toggle" id="darkToggle">🌙</button>
+  </nav>
 
-  <!-- 🔹 Top Navigation -->
-  <header class="topbar light-top">
-    <a href="profile.html" class="btn ghost small">Profile</a>
-    <span id="authLinks"></span>
-    <label class="theme-switch">
-      <input type="checkbox" id="themeToggle">
-      <span class="slider"></span>
-    </label>
+  <section class="dashboard">
+    <h1>Dashboard</h1>
 
+    <div class="stats">
+      <div class="stat-card">
+        <h2>Total Cases</h2>
+        <p id="totalCases">0</p>
+      </div>
+      <div class="stat-card">
+        <h2>Upcoming Hearings</h2>
+        <p id="upcomingHearings">0</p>
+      </div>
+    </div>
 
-    <div class="brand">⚖️ Lawyer Case Manager</div>
-    <nav>
-      <a href="index.html">Dashboard</a>
-      <a href="add.html">Add Case</a>
-      <a href="about.html">About</a>
-      <span id="authLinks"></span>
-    </nav>
-  </header>
+    <div class="search-filter">
+      <input type="text" id="searchInput" placeholder="Search by Client or Case Title..." />
+    </div>
 
-  <!-- 🔹 Filters and Search Section -->
-  <section class="toolbar">
-    <input type="search" id="search" placeholder="Search cases...">
-    <select id="sortBy">
-      <option value="caseTitle">Case Title</option>
-      <option value="currentDate">Current Date</option>
-      <option value="nextDate">Next Date</option>
-    </select>
-    <select id="sortOrder">
-      <option value="asc">Asc</option>
-      <option value="desc">Desc</option>
-    </select>
-
-    <select id="filterJudge"><option value="">All Judges</option></select>
-    <select id="filterCourt"><option value="">All Courts</option></select>
-
-    <label><input type="checkbox" id="filterHasFiles"> Has Files</label>
-    <input type="number" id="filterUpcoming" placeholder="Upcoming (days)" min="0">
-
-    <input type="date" id="dateFrom">
-    <input type="date" id="dateTo">
-    <button class="btn small" id="todayBtn">Today</button>
-    <button class="btn small ghost" id="clearFilters">Clear</button>
+    <table class="case-table">
+      <thead>
+        <tr>
+          <th>Case Title</th>
+          <th>Client Name</th>
+          <th>Current Hearing</th>
+          <th>Next Hearing</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="caseTableBody"></tbody>
+    </table>
   </section>
 
-  <!-- 🔹 Case List -->
-  <main>
-    <div id="casesList" class="cards"></div>
-
-    <!-- Template for each case -->
-    <template id="caseTpl">
-      <div class="card">
-        <h3 class="title"></h3>
-        <p><strong>Client:</strong> <span class="client"></span></p>
-        <p><strong>Court:</strong> <span class="court"></span></p>
-        <p><strong>Judge:</strong> <span class="judge"></span></p>
-        <p><strong>Current Date:</strong> <span class="current"></span></p>
-        <p><strong>Next Date:</strong> <span class="next"></span></p>
-        <p><strong>Files:</strong> <span class="filesCount"></span></p>
-        <div class="file-preview"></div>
-        <div class="actions">
-          <button class="btn small viewBtn">View / Edit</button>
-          <button class="btn small danger delBtn">Delete</button>
-        </div>
-      </div>
-    </template>
-  </main>
-
-  <!-- 🔹 Footer -->
-  <footer class="footer light-footer">© 2025 Lawyer Case Manager</footer>
-
-  <!-- 🔹 Firebase (compat version for browser) -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
-
-  <!-- 🔹 Your main logic -->
   <script src="app.js"></script>
 </body>
 </html>
