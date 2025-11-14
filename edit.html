@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Case – Lawyer Case Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">CaseManager</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="add.html">Add Case</a></li>
+      <li><a href="#" id="logoutBtn">Logout</a></li>
+    </ul>
+    <button class="dark-toggle" id="darkToggle">🌙</button>
+  </nav>
+
+  <section class="form-section">
+    <h1>Edit Case</h1>
+
+    <form id="editCaseForm" enctype="multipart/form-data">
+
+      <input type="hidden" id="editCaseId" />
+
+      <label>Case Title</label>
+      <input type="text" id="editCaseTitle" required />
+
+      <label>Client Name</label>
+      <input type="text" id="editClientName" required />
+
+      <label>Mobile Number / Email</label>
+      <input type="text" id="editContact" required />
+
+      <label>Court Number</label>
+      <input type="text" id="editCourtNumber" />
+
+      <label>Judge Name</label>
+      <input type="text" id="editJudgeName" />
+
+      <label>Current Date of Hearing</label>
+      <input type="date" id="editCurrentHearing" required />
+
+      <label>Next Date of Hearing</label>
+      <input type="date" id="editNextHearing" />
+
+      <label>Purpose / Remarks</label>
+      <textarea id="editRemarks" rows="4"></textarea>
+
+      <label>Existing Files</label>
+      <div id="existingFiles"></div>
+
+      <label>Add More Files</label>
+      <input type="file" id="editCaseFiles" multiple />
+
+      <button type="submit" class="btn">Update Case</button>
+    </form>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
