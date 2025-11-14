@@ -1,95 +1,58 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Add / Edit Case — Lawyer Case Manager</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Case – Lawyer Case Manager</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <nav class="navbar">
+    <div class="logo">CaseManager</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="add.html" class="active">Add Case</a></li>
+      <li><a href="#" id="logoutBtn">Logout</a></li>
+    </ul>
+    <button class="dark-toggle" id="darkToggle">🌙</button>
+  </nav>
 
-  <!-- 🔹 Header -->
-  <header class="topbar light-top">
-    <span id="authLinks"></span>
-    <a href="profile.html" class="btn ghost small">Profile</a>
-    <label class="theme-switch">
-      <input type="checkbox" id="themeToggle">
-      <span class="slider"></span>
-    </label>
+  <section class="form-section">
+    <h1>Add New Case</h1>
 
-    <div class="brand">⚖️ Lawyer Case Manager</div>
-    <nav>
-      <a href="index.html">Dashboard</a>
-      <a href="add.html" class="active">Add Case</a>
-      <a href="about.html">About</a>
-      <span id="authLinks"></span>
-    </nav>
-  </header>
+    <form id="addCaseForm" enctype="multipart/form-data">
 
-  <!-- 🔹 Case Form -->
-  <main>
-    <h1 id="formTitle">Add Case</h1>
-    <form id="caseForm" class="form">
-      <input type="hidden" id="caseId">
+      <label>Case Title</label>
+      <input type="text" id="caseTitle" required />
 
-      <label>Case Title
-        <input id="caseTitle" required placeholder="Enter case title">
-      </label>
+      <label>Client Name</label>
+      <input type="text" id="clientName" required />
 
-      <label>Client Name
-        <input id="clientName" required placeholder="Client name">
-      </label>
+      <label>Mobile Number / Email</label>
+      <input type="text" id="contact" required />
 
-      <label>Client Contact (Email)
-        <input id="contact" type="email" placeholder="client@example.com">
-      </label>
+      <label>Court Number</label>
+      <input type="text" id="courtNumber" />
 
-      <label>Client Phone
-        <input id="phone" type="tel" placeholder="9998887777">
-      </label>
+      <label>Judge Name</label>
+      <input type="text" id="judgeName" />
 
-      <label>Court Number
-        <input id="courtNumber" placeholder="Court number">
-      </label>
+      <label>Current Date of Hearing</label>
+      <input type="date" id="currentHearing" required />
 
-      <label>Judge Name
-        <input id="judgeName" placeholder="Judge name">
-      </label>
+      <label>Next Date of Hearing</label>
+      <input type="date" id="nextHearing" />
 
-      <label>Remarks
-        <textarea id="remarks" rows="3" placeholder="Additional details..."></textarea>
-      </label>
+      <label>Purpose / Remarks</label>
+      <textarea id="remarks" rows="4"></textarea>
 
-      <div class="grid-2">
-        <label>Current Hearing Date
-          <input type="date" id="currentDate">
-        </label>
-        <label>Next Hearing Date
-          <input type="date" id="nextDate">
-        </label>
-      </div>
+      <label>Attach Files (Multiple Allowed)</label>
+      <input type="file" id="caseFiles" multiple />
 
-      <label>Attach Files
-        <input type="file" id="filesInput" multiple accept="image/*,.pdf,.doc,.docx,.txt">
-      </label>
-
-      <div id="existingFiles" class="file-list"></div>
-
-      <button type="submit" class="btn primary">Save Case</button>
-      <a href="index.html" class="btn ghost">Cancel</a>
+      <button type="submit" class="btn">Save Case</button>
     </form>
-  </main>
+  </section>
 
-  <!-- 🔹 Footer -->
-  <footer class="footer light-footer">© 2025 Lawyer Case Manager</footer>
-
-  <!-- 🔹 Firebase (compat version for browser) -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
-
-  <!-- 🔹 Your main logic -->
   <script src="app.js"></script>
 </body>
 </html>
